@@ -23,40 +23,51 @@ function Delete_SteamApps_Directory() {
 function SteamCMD_Validate() {
 	Debug "Inside Function: SteamCMD_Validate()"
 
-    if [[ "${FRAMEWORK}" == *"aux1"* ]]; then
-        Delete_SteamApps_Directory
-        Info "Downloading Aux1 Files - Validation On!"
-        ./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 -beta aux01 validate +quit
+    # Determine which Steam branch to use
+    local STEAM_BETA_BRANCH=""
+
+    # If custom branch is specified, use it
+    if [[ -n "${STEAM_BRANCH}" ]]; then
+        STEAM_BETA_BRANCH="${STEAM_BRANCH}"
+        Info "Using custom Steam branch: ${STEAM_BETA_BRANCH}"
+    # Otherwise, determine by framework
+    elif [[ "${FRAMEWORK}" == *"aux1"* ]]; then
+        STEAM_BETA_BRANCH="aux01-staging"
     elif [[ "${FRAMEWORK}" == *"aux2"* ]]; then
-        Delete_SteamApps_Directory
-        Info "Downloading Aux2 Files - Validation On!"
-        ./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 -beta aux02 validate +quit
+        STEAM_BETA_BRANCH="aux02"
     elif [[ "${FRAMEWORK}" == *"staging"* ]]; then
-        Delete_SteamApps_Directory
-        Info "Downloading Staging Files - Validation On!"
-        ./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 -beta staging validate +quit
+        STEAM_BETA_BRANCH="staging"
     else
-        Delete_SteamApps_Directory
-        Info "Downloading Default Files - Validation On!"
-        ./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 -beta public validate +quit
+        STEAM_BETA_BRANCH="public"
     fi
+
+    Delete_SteamApps_Directory
+    Info "Downloading ${STEAM_BETA_BRANCH} Files - Validation On!"
+    ./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 -beta ${STEAM_BETA_BRANCH} validate +quit
 }
 
 # Don't validate while downloading
 function SteamCMD_No_Validation() {
 	Debug "Inside Function: SteamCMD_No_Validation()"
 
-    if [[ "${FRAMEWORK}" == *"aux1"* ]]; then
-        Info "Downloading Aux1 Files - Validation Off!"
-        ./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 -beta aux01 +quit
+    # Determine which Steam branch to use
+    local STEAM_BETA_BRANCH=""
+
+    # If custom branch is specified, use it
+    if [[ -n "${STEAM_BRANCH}" ]]; then
+        STEAM_BETA_BRANCH="${STEAM_BRANCH}"
+        Info "Using custom Steam branch: ${STEAM_BETA_BRANCH}"
+    # Otherwise, determine by framework
+    elif [[ "${FRAMEWORK}" == *"aux1"* ]]; then
+        STEAM_BETA_BRANCH="aux01-staging"
     elif [[ "${FRAMEWORK}" == *"aux2"* ]]; then
-        Info "Downloading Aux2 Files - Validation Off!"
-        ./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 -beta aux02 +quit
+        STEAM_BETA_BRANCH="aux02"
     elif [[ "${FRAMEWORK}" == *"staging"* ]]; then
-        Info "Downloading Staging Files - Validation Off!"
-        ./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 -beta staging +quit
+        STEAM_BETA_BRANCH="staging"
     else
-        Info "Downloading Default Files - Validation Off!"
-        ./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 -beta public +quit
+        STEAM_BETA_BRANCH="public"
     fi
+
+    Info "Downloading ${STEAM_BETA_BRANCH} Files - Validation Off!"
+    ./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 -beta ${STEAM_BETA_BRANCH} +quit
 }
