@@ -20,6 +20,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set lowercase owner
+        run: echo "OWNER_LC=${OWNER,,}" >> $GITHUB_ENV
+        env:
+          OWNER: '${{ github.repository_owner }}'
       - uses: docker/build-push-action@v6
         with:
           context: ./games/carbon
@@ -27,4 +31,4 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/aioegg:staging
+            ghcr.io/${{ env.OWNER_LC }}/aioegg:staging
